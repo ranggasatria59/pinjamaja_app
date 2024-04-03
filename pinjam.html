@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinjam Barang</title>
+</head>
+<body>
+    <h2>Pinjam Barang</h2>
+    <form action="http://localhost:3000/pinjam" method="POST">
+        <label for="id_barang">ID Barang:</label><br>
+        <input type="text" id="id_barang" name="id_barang"><br>
+        <label for="nama_peminjam">Nama Peminjam:</label><br>
+        <input type="text" id="nama_peminjam" name="nama_peminjam"><br>
+        <label for="tanggal_pinjam">Tanggal Pinjam:</label><br>
+        <input type="date" id="tanggal_pinjam" name="tanggal_pinjam"><br><br>
+        <button type="submit">Pinjam Barang</button>
+    </form>
+</body>
+</html>

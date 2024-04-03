@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Barang</title>
+    <style>
+        /* Reset CSS */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+
+        header {
+            background-color: #374151;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        table th, table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #4b5563;
+            color: #fff;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        table tbody tr:hover {
+            background-color: #f0f2f5;
+        }
+
+        footer {
+            background-color: #374151;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        button {
+            background-color: #dc2626;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Daftar Barang</h1>
+    </header>
+    <main>
+        <div class="container">
+            <table id="daftar-barang">
+                <thead>
+                    <tr>
+                        <th>ID Barang</th>
+                        <th>Nama Barang</th>
+                        <th>Jumlah</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Baris data barang akan digenerate oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Pinjamaja-rangga. All rights reserved.</p>
+    </footer>
+    <script>
+        fetch('http://localhost:3000/barang')
+            .then(response => response.json())
+            .then(data => {
+                const daftarBarangTable = document.getElementById('daftar-barang');
+                data.forEach(barang => {
+                    const row = `<tr>
+                                    <td>${barang.id_barang}</td>
+                                    <td>${barang.nama_barang}</td>
+                                    <td>${barang.jumlah}</td>
+                                    <td>
+                                        <button class="button" onclick="pinjamBarang(${barang.id_barang})">Pinjam</button>
+                                        <button class="button" onclick="hapusBarang(${barang.id_barang})">Hapus</button>
+                                        <div id="form-peminjaman-${barang.id_barang}" style="display: none;">
+                                            <input type="text" id="nama-peminjam-${barang.id_barang}" placeholder="Nama Peminjam">
+                                            <input type="date" id="tanggal-pinjam-${barang.id_barang}" value="${new Date().toISOString().slice(0, 10)}">
+                                            <button class="button" onclick="submitPeminjaman(${barang.id_barang})">Submit</button>
+                                        </div>
+                                    </td>
+                                </tr>`;
+                    daftarBarangTable.querySelector('tbody').innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        function pinjamBarang(id) {
+            const formPeminjaman = document.getElementById(`form-peminjaman-${id}`);
+            formPeminjaman.style.display = 'block';
+        }
+
+        function submitPeminjaman(id) {
+            const namaPeminjam = document.getElementById(`nama-peminjam-${id}`).value;
+            const tanggalPinjam = document.getElementById(`tanggal-pinjam-${id}`).value;
+            
+            fetch('http://localhost:3000/pinjam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_barang: id,
+                    nama_peminjam: namaPeminjam,
+                    tanggal_pinjam: tanggalPinjam
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data); // Menampilkan pesan dari server
+                location.reload(); // Memuat ulang halaman setelah melakukan peminjaman
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function hapusBarang(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+                fetch(`http://localhost:3000/hapus-barang/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data); // Menampilkan pesan dari server
+                    location.reload(); // Memuat ulang halaman setelah menghapus barang
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal menghapus barang');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
